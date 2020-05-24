@@ -5,7 +5,7 @@
 <div align="center">
 <b>About</b></div>
 
-***This tool is both an OCR Translator and a Cliboard Translator.***
+***This tool is both an OCR Translator and a Clipboard Translator.***
 
 ------------
 
