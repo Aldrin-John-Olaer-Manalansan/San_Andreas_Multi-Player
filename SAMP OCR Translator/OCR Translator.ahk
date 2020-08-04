@@ -89,7 +89,7 @@ return
 
 ;$!i:: ImageIdentify()    ; Label images
 
-~F9::
+~Ins::
 clipboard:=GoogleTranslate(clipboard,"en","es") ; english to espanol
 ToolTipEx("Translation Complete:`n" clipboard,0,0,translatortooltip,,"0x353535","0xD5DADD",,"S")
 return
@@ -144,7 +144,7 @@ loop,parse,sampchatlog,`n,`r
 		if (translatedsentence!=A_LoopField) ; if a mispelled word was detected and was fixed now
 			translatedsentence:=GoogleTranslate(translatedsentence) ; retry the translation last try!
 	}
-	translatedtext.= (A_Index>1?"`r`n":"") . translatedsentence
+	translatedtext.= (A_Index>1?"`r`n":"") . "(" . fromwhatlanguage . "): " . translatedsentence
 }
 ;ToolTipEx(translatedtext,0,0,translatortooltip,,"Black","White",,"S")
 ;ToolTipEx(translatedtext,0,0,translatortooltip,,"0x888994","0xFFFF00",,"S")

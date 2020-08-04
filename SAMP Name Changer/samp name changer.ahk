@@ -29,7 +29,7 @@ return
 ExitApp
 
 ~^F10::
-if (randomizermode<2)
+if (randomizermode<3)
 	randomizermode+=1
 else randomizermode := 0
 if (randomizermode = 0)
@@ -37,6 +37,8 @@ if (randomizermode = 0)
 else if (randomizermode = 1)
 	ToolTip,Name Randomizer Mode: Characters Generator,%A_ScreenWidth%,0
 else if (randomizermode = 2)
+	ToolTip,Name Randomizer Mode: l & I Characters Generator,%A_ScreenWidth%,0
+else if (randomizermode = 3)
 	ToolTip,Name Randomizer Mode: Name Generator,%A_ScreenWidth%,0
 settimer,removetooltip,-2000
 return
@@ -83,7 +85,9 @@ if (randomizermode=0) and (nickname.Count()>0) ; name spoofing method
 	randomizedname:=namespoofer(nickname) ; passed parameter must be an array
 else if (randomizermode=1) ; random character method
 	randomizedname:=randomizedcharacters()
-else ;if (randomizermode=2)
+else if (randomizermode=2)
+	randomizedname:=lICharacters(10,10) ; l and I characters generator method
+else ;if (randomizermode=3)
 	randomizedname:=RandomName(6,18) ; random name generator method
 
 reinsertname:
@@ -109,7 +113,7 @@ while true
 timer:=A_TickCount
 while (A_TickCount-timer<1000)
 {
-	ImageSearch, OutputVarX, OutputVarY, 556, 308, 820, 471,*%variation% %A_ScriptDir%\insname.png
+	ImageSearch, OutputVarX, OutputVarY, 556, 308, 820, 471,*10 %A_ScriptDir%\insname.png
 	if (ErrorLevel=0)
 		goto,reinsertname
 }
@@ -271,14 +275,14 @@ revalidatename:
 		;name spoofing stage
 		spoofedname:= substr(spoofedname,1,pos1-1) . pos2 . substr(spoofedname,pos1+1)
 	}
-	else if pos1:=RegExMatch(spoofedname,"(?=\w)[^AaEeIiOoUu]") ; if a non-consonant exist
+	else if pos1:=RegExMatch(spoofedname,"(?=\w)[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]") ; if a consonant exist
 	{ ; then change a non-consonant character
 		; random offset generator stage
 		loop
 		{
 			tooltip,name:%spoofedname%`nindex:%A_Index% at 3,0,0
 			Random,pos1,1,% strlen(spoofedname) ; random character offset of the nickname
-			if RegExMatch(substr(spoofedname,pos1,1),"(?=\w)[^AaEeIiOoUu]") ; it should be a non-consonant!
+			if RegExMatch(substr(spoofedname,pos1,1),"(?=\w)[bcdfghjklmnpqrstvwxyzBCDFGHJKLMNPQRSTVWXYZ]") ; it should be a consonant!
 				break
 		}
 		; random character generator stage
@@ -287,32 +291,24 @@ revalidatename:
 		loop
 		{
 			tooltip,name:%spoofedname%`nindex:%A_Index% at 4,0,0
-			Random,pos2,65,122 ; ascii nondigit randomizer
-			if !RegExMatch(chr(pos2),"(?=\w)[AaEeIiOoUu]") and (charvar!=chr(pos2)) ; if its a non-consonant character and the random character is not equal to the original character
-			{
-				if charvar is upper ; if uppercase then the randomized character must be uppercase too
-				{
-					if (pos2<=90)
-						break
-				}
-				else if charvar is lower ; if lowercase then the randomized character must be lowercasee too
-				{
-					if (pos2>=97)
-						break
-				}
-			}
+			if charvar is upper
+				Random,pos2,65,90 ; ascii uppercase randomizer
+			else
+				Random,pos2,97,122 ; ascii lowercase randomizer
+			if !RegExMatch(chr(pos2),"(?=\w)[AaEeIiOoUu]") and (charvar!=chr(pos2)) ; if its a consonant character and the random character is not equal to the original character
+				break
 		}
 		;name spoofing stage
 		spoofedname:= substr(spoofedname,1,pos1-1) . chr(pos2) . substr(spoofedname,pos1+1)
 	}
-	else if pos1:=RegExMatch(spoofedname,"(?=\w)[AaEeIiOoUu]") ; if a consonant exist
-	{ ; then change a consonant character
+	else if pos1:=RegExMatch(spoofedname,"(?=\w)[AaEeIiOoUu]") ; if a vowel exist
+	{ ; then change a vowel character
 		; random offset generator stage
 		loop
 		{
 			tooltip,name:%spoofedname%`nindex:%A_Index% at 5,0,0
 			Random,pos1,1,% strlen(spoofedname) ; random character offset of the nickname
-			if RegExMatch(substr(spoofedname,pos1,1),"(?=\w)[AaEeIiOoUu]") ; it should be a consonant!
+			if RegExMatch(substr(spoofedname,pos1,1),"(?=\w)[AaEeIiOoUu]") ; it should be a vowel!
 				break
 		}
 		; random character generator stage
@@ -320,7 +316,7 @@ revalidatename:
 		loop
 		{
 			tooltip,name:%spoofedname%`nindex:%A_Index% at 6,0,0
-			Random,pos2,1,5 ; 1-5 = five consonants (a/A e/E i/I o/O u/U)
+			Random,pos2,1,5 ; 1-5 = five vowels (a/A e/E i/I o/O u/U)
 			if charvar is upper ; if uppercase then the randomized character must be uppercase too
 			{
 				randchar := substr("AEIOU",pos2,1)
@@ -383,6 +379,24 @@ randomizedcharacters(MinLength:=10, MaxLength:=18)
 				break
 		}
 		randomizedcharname.=Chr(asciinumber)
+	}
+	return randomizedcharname
+}
+
+lICharacters(MinLength:=10, MaxLength:=10)
+{
+	MinLength:=Format("{:d}", MinLength)
+	MaxLength:=Format("{:d}", MaxLength)
+	if (MinLength<MaxLength)
+		MaxLength:=MinLength
+	
+	Random,charcount,%MinLength%,%MinLength%
+	
+	randomizedcharname:=""
+	loop %charcount%
+	{
+		Random,value,2,3
+		randomizedcharname .= (value==2?"l":"I")
 	}
 	return randomizedcharname
 }
